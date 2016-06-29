@@ -1,3 +1,5 @@
+import static spark.Spark.get;
+
 /**
  * Created by Njand on 6/28/2016.
  */
