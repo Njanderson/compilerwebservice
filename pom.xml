@@ -18,6 +18,16 @@
                     <target>1.8</target>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>1.2.1</version>
+                <configuration>
+                    <mainClass>CompilerWebService</mainClass>
+                    <arguments>
+                    </arguments>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
@@ -28,5 +38,6 @@
             <artifactId>spark-core</artifactId>
             <version>2.5</version>
         </dependency>
+
     </dependencies>
 </project>
