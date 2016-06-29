@@ -6,6 +6,11 @@ import static spark.Spark.get;
 public class CompilerWebService {
 
     public static void main(String[] args) {
-        get("/hello", (req, res) -> "Hello World");
+        get("/hello", (req, res) -> {
+            System.out.println("hi world!");
+            res.body("Hello World");
+            return "sup world";
+        }
+        );
     }
 }
