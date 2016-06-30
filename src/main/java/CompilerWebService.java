@@ -1,16 +1,12 @@
 import static spark.Spark.get;
 
 /**
- * Created by Njand on 6/28/2016.
+ * This runs on port 4567.
+ * Go to http://54.224.114.104:4567
  */
 public class CompilerWebService {
-
     public static void main(String[] args) {
-        get("/hello", (req, res) -> {
-            System.out.println("hi world!");
-            res.body("Hello World");
-            return "sup world";
-        }
+        get("/hello", (req, res) -> "Hello world"
         );
     }
 }
