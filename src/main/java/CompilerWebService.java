@@ -27,7 +27,7 @@ public class CompilerWebService {
             }
             Process proc = Runtime.getRuntime().exec("scala -cp /home/ec2-user/compilerwebservice/src/main/resources/cafebabe.jar " +
                     "/home/ec2-user/compilerwebservice/src/main/resources/slacc-compiler.jar -d /home/ec2-user/classfiles /home/ec2-user/raw/compile-source.slacc");
-            proc = Runtime.getRuntime().exec("java -cp /home/ec2-user/out Main");
+            proc = Runtime.getRuntime().exec("java -cp /home/ec2-user/classfiles Main");
 
             // Then retreive the process output
             InputStream in = proc.getInputStream();
