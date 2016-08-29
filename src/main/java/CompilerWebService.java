@@ -20,10 +20,8 @@ public class CompilerWebService {
 
         CompilerWebService webService = new CompilerWebService();
         post("/compile", (req, res) -> {
-	String msg = "failed!";    
-	try {
-		
-
+            String msg = "failed!";
+            try {
             // scala -cp cafebabe_2.11-1.2.jar slacc_2.11-1.2.jar <program.slac>
             try (Writer writer = new BufferedWriter(new OutputStreamWriter(
                     new FileOutputStream("/raw/compile-source.slacc"), "utf-8"))) {
@@ -31,11 +29,6 @@ public class CompilerWebService {
                 writer.write(req.body());
                 msg = req.body();
                 System.out.println(req.body());
-            }
-
-		writer.write(req.body());
-		msg = req.body();
-		System.out.println(req.body());
             }
             Process proc = Runtime.getRuntime().exec("scala -cp src/main/resources/cafebabe.jar " +
                     "src/main/resources/slacc-compiler.jar -d /classfiles /raw/compile-source.slacc");
