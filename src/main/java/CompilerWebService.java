@@ -20,14 +20,27 @@ public class CompilerWebService {
 
         CompilerWebService webService = new CompilerWebService();
         post("/compile", (req, res) -> {
+	String msg = "failed!";    
+	try {
+		
+
             // scala -cp cafebabe_2.11-1.2.jar slacc_2.11-1.2.jar <program.slac>
             try (Writer writer = new BufferedWriter(new OutputStreamWriter(
-                    new FileOutputStream("/home/ec2-user/raw/compile-source.slacc"), "utf-8"))) {
+                    new FileOutputStream("/raw/compile-source.slacc"), "utf-8"))) {
+                msg = "could open a new file!";
                 writer.write(req.body());
+                msg = req.body();
+                System.out.println(req.body());
             }
-            Process proc = Runtime.getRuntime().exec("scala -cp /home/ec2-user/compilerwebservice/src/main/resources/cafebabe.jar " +
-                    "/home/ec2-user/compilerwebservice/src/main/resources/slacc-compiler.jar -d /home/ec2-user/classfiles /home/ec2-user/raw/compile-source.slacc");
-            proc = Runtime.getRuntime().exec("java -cp /home/ec2-user/classfiles Main");
+
+		writer.write(req.body());
+		msg = req.body();
+		System.out.println(req.body());
+            }
+            Process proc = Runtime.getRuntime().exec("scala -cp src/main/resources/cafebabe.jar " +
+                    "src/main/resources/slacc-compiler.jar -d /classfiles /raw/compile-source.slacc");
+		msg = "compilation failed!";            
+proc = Runtime.getRuntime().exec("java -cp /classfiles Main");
 
             // Then retreive the process output
             InputStream in = proc.getInputStream();
@@ -35,8 +48,12 @@ public class CompilerWebService {
 
             Scanner scanner = new Scanner(in).useDelimiter("\\A");
             String result = scanner.hasNext() ? scanner.next() : "";
-            webService.writeResult("/home/ec2-user/out/out.txt", result);
+            webService.writeResult("/out/out.txt", result);
             return result;
+} catch (Exception e) {
+	return "Failed out. :( Message: " + msg;
+}
+
         });
 
         get("/hello", (req, res) -> "Hello world"
