@@ -22,30 +22,30 @@ public class CompilerWebService {
         post("/compile", (req, res) -> {
             String msg = "failed!";
             try {
-            // scala -cp cafebabe_2.11-1.2.jar slacc_2.11-1.2.jar <program.slac>
-            try (Writer writer = new BufferedWriter(new OutputStreamWriter(
-                    new FileOutputStream("/raw/compile-source.slacc"), "utf-8"))) {
-                msg = "could open a new file!";
-                writer.write(req.body());
-                msg = req.body();
-                System.out.println(req.body());
+                // scala -cp cafebabe_2.11-1.2.jar slacc_2.11-1.2.jar <program.slac>
+                try (Writer writer = new BufferedWriter(new OutputStreamWriter(
+                        new FileOutputStream("/raw/compile-source.slacc"), "utf-8"))) {
+                    msg = "could open a new file!";
+                    writer.write(req.body());
+                    msg = req.body();
+                    System.out.println(req.body());
+                }
+                Process proc = Runtime.getRuntime().exec("scala -cp /code/src/main/resources/cafebabe.jar " +
+                        "/code/src/main/resources/slacc-compiler.jar -d /classfiles /raw/compile-source.slacc");
+                msg = "compilation failed!";
+                proc = Runtime.getRuntime().exec("java -cp /classfiles Main");
+
+                // Then retreive the process output
+                InputStream in = proc.getInputStream();
+                InputStream err = proc.getErrorStream();
+
+                Scanner scanner = new Scanner(in).useDelimiter("\\A");
+                String result = scanner.hasNext() ? scanner.next() : "";
+                webService.writeResult("/out/out.txt", result);
+                return result;
+            } catch (Exception e) {
+                return "Failed out. :( Message: " + msg;
             }
-            Process proc = Runtime.getRuntime().exec("scala -cp src/main/resources/cafebabe.jar " +
-                    "src/main/resources/slacc-compiler.jar -d /classfiles /raw/compile-source.slacc");
-		msg = "compilation failed!";            
-proc = Runtime.getRuntime().exec("java -cp /classfiles Main");
-
-            // Then retreive the process output
-            InputStream in = proc.getInputStream();
-            InputStream err = proc.getErrorStream();
-
-            Scanner scanner = new Scanner(in).useDelimiter("\\A");
-            String result = scanner.hasNext() ? scanner.next() : "";
-            webService.writeResult("/out/out.txt", result);
-            return result;
-} catch (Exception e) {
-	return "Failed out. :( Message: " + msg;
-}
 
         });
 
