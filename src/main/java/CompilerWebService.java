@@ -25,14 +25,13 @@ public class CompilerWebService {
                 try (Writer writer = new BufferedWriter(new OutputStreamWriter(
                         new FileOutputStream("/raw/compile-source.slacc"), "utf-8"))) {
                     writer.write(req.body());
-                    System.out.println(req.body());
                 }
                 Process proc = Runtime.getRuntime().exec("scala -cp /code/src/main/resources/cafebabe.jar " +
                         "/code/src/main/resources/slacc-compiler.jar -d /classfiles /raw/compile-source.slacc");
                 proc.waitFor();
                 proc = Runtime.getRuntime().exec("java -cp /classfiles Main");
                 proc.waitFor();
-                // Then retreive the process output
+                // Then retrieve the process output
                 InputStream in = proc.getInputStream();
                 InputStream err = proc.getErrorStream();
 
