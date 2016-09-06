@@ -1,0 +1,22 @@
+nginx:
+	build: ./nginx_dockerfile
+	links:
+		- worker1:worker1
+		- worker2:worker2
+		- worker3:worker3
+	ports:
+		- "4567:4567"
+worker1:
+    build: ./worker_dockerfile
+    ports:
+        - "8080"
+
+worker2:
+    build: ./worker_dockerfile
+    ports:
+        - "8080"
+
+worker3:
+    build: ./worker_dockerfile
+    ports:
+        - "8080"
