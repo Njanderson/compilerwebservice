@@ -1,8 +1,7 @@
 import java.io.*;
 import java.util.Scanner;
 
-import static spark.Spark.get;
-import static spark.Spark.post;
+import static spark.Spark.*;
 
 /**
  * This runs on port 4567.
@@ -19,6 +18,7 @@ public class CompilerWebService {
 //        );
 
         CompilerWebService webService = new CompilerWebService();
+        enableCORS("http://njanderson.me", "POST", "Content-Type");
         post("/compile", (req, res) -> {
             try {
                 // scala -cp cafebabe_2.11-1.2.jar slacc_2.11-1.2.jar <program.slac>
@@ -48,6 +48,33 @@ public class CompilerWebService {
 
         get("/hello", (req, res) -> "Hello world"
         );
+    }
+
+    // Enables CORS on requests. This method is an initialization method and should be called once.
+    private static void enableCORS(final String origin, final String methods, final String headers) {
+
+        options("/*", (request, response) -> {
+
+            String accessControlRequestHeaders = request.headers("Access-Control-Request-Headers");
+            if (accessControlRequestHeaders != null) {
+                response.header("Access-Control-Allow-Headers", accessControlRequestHeaders);
+            }
+
+            String accessControlRequestMethod = request.headers("Access-Control-Request-Method");
+            if (accessControlRequestMethod != null) {
+                response.header("Access-Control-Allow-Methods", accessControlRequestMethod);
+            }
+
+            return "OK";
+        });
+
+        before((request, response) -> {
+            response.header("Access-Control-Allow-Origin", origin);
+            response.header("Access-Control-Request-Method", methods);
+            response.header("Access-Control-Allow-Headers", headers);
+            // Note: this may or may not be necessary in your particular application
+            response.type("application/json");
+        });
     }
 
     private void writeResult(String resultPath, String result) {
