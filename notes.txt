@@ -1,0 +1,23 @@
+Look at the docker flags!
+the dirs are not getting created in the root
+so we have a code dir, with code/src and code/target, but obviously we can't write to anything outside of the working dir
+
+
+To build the project
+docker build -t my-maven .
+docker run -it -p 4567:4567 --name my-maven-script my-maven
+
+
+To check on the health of the container
+docker run -it -d my-maven-script /bin/bash
+
+
+ docker run -it -p -p 4567:4567 -name my-maven-script my-maven
+
+
+ docker exec c0dafb3997ec java -cp /classfiles Main
+
+
+
+ scala -cp /code/src/main/resources/cafebabe.jar /code/src/main/resources/slacc-compiler.jar -d /classfiles /raw/compile-source.slacc
+
