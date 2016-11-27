@@ -38,6 +38,7 @@ public class CompilerWebService {
                 Scanner scanner = new Scanner(in).useDelimiter("\\A");
                 String result = scanner.hasNext() ? scanner.next() : "";
                 webService.writeResult("/out/out.txt", result);
+                res.header("Access-Control-Allow-Origin", "*");
                 return result;
             } catch (Exception e) {
                 return "Failed out.";
