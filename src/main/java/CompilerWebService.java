@@ -46,7 +46,7 @@ public class CompilerWebService {
 
         });
 
-        get("/hello", (req, res) -> "Hello world"
+        get("/hello", (req, res) -> "Hello CORS"
         );
     }
 
