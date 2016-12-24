@@ -60,12 +60,15 @@ public class CompilerWebService {
                 res.header("Access-Control-Allow-Origin", "http://njanderson.me");
 
                 // Cleanup
-                File sourceFile = new File(sourceFileName);
-                sourceFile.delete(); // Consider cleanup job that parses file names and uses the timestamps
-                File outDir = new File("/classfiles/" + suffix);
-                File[] contents = outDir.listFiles();
-                for (File f : contents) {
-                    f.delete();
+                try {
+                    File sourceFile = new File(sourceFileName);
+                    sourceFile.delete(); // Consider cleanup job that parses file names and uses the timestamps
+                    File outDir = new File("/classfiles/" + suffix);
+                    File[] contents = outDir.listFiles();
+                    for (File f : contents) {
+                        f.delete();
+                    }                } catch (Exception e) {
+                    // Clean up later
                 }
 
                 String ret = gson.toJson(response);
