@@ -52,6 +52,7 @@ public class CompilerWebService {
                 in = proc.getInputStream();
                 err = proc.getErrorStream(); // Ignore error stream?
 
+                scanner = new Scanner(in).useDelimiter("\\A");
                 String runOutput = scanner.hasNext() ? scanner.next() : "";
                 response.output = runOutput;
                 res.header("Access-Control-Allow-Origin", "http://njanderson.me");
