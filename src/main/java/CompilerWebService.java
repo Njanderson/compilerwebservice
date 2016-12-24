@@ -1,5 +1,10 @@
+import com.google.gson.Gson;
+import objects.CompileJobRequest;
+import objects.CompileJobResponse;
+
 import java.io.*;
 import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
 
 import static spark.Spark.*;
 
@@ -8,6 +13,9 @@ import static spark.Spark.*;
  * Go to http://54.224.114.104:4567
  */
 public class CompilerWebService {
+
+    static final Gson gson = new Gson();
+
     public static void main(String[] args) {
         // https://github.com/tipsy/spark-file-upload/blob/master/src/main/java/UploadExample.java
 //        get("/", (req, res) ->
@@ -17,49 +25,50 @@ public class CompilerWebService {
 //                        + "</form>"
 //        );
 
-        CompilerWebService webService = new CompilerWebService();
-        post("/compile", (req, res) -> {
+        post("/compile", (reqJson, res) -> {
             try {
-                // scala -cp cafebabe_2.11-1.2.jar slacc_2.11-1.2.jar <program.slac>
+                CompileJobRequest request = gson.fromJson(reqJson.body(), CompileJobRequest.class);
+                CompileJobResponse response = new CompileJobResponse();
+                String sourceFileName = "/raw/compile-source" + reqJson.ip() + System.currentTimeMillis() + ".slacc";
                 try (Writer writer = new BufferedWriter(new OutputStreamWriter(
-                        new FileOutputStream("/raw/compile-source.slacc"), "utf-8"))) {
-                    writer.write(req.body());
+                        new FileOutputStream(sourceFileName), "utf-8"))) {
+                    writer.write(request.code);
                 }
                 Process proc = Runtime.getRuntime().exec("scala -cp /code/src/main/resources/cafebabe.jar " +
-                        "/code/src/main/resources/slacc-compiler.jar -d /classfiles /raw/compile-source.slacc");
-                proc.waitFor();
-                proc = Runtime.getRuntime().exec("java -cp /classfiles Main");
-                proc.waitFor();
-                // Then retrieve the process output
-                InputStream in = proc.getInputStream();
-                InputStream err = proc.getErrorStream();
+                        "/code/src/main/resources/slacc-compiler.jar -d /classfiles " + sourceFileName);
+                boolean success = proc.waitFor(500, TimeUnit.MILLISECONDS);
+                InputStream in;
+                InputStream err;
+                in = proc.getInputStream();
+                err = proc.getErrorStream(); // Ignore error stream?
 
                 Scanner scanner = new Scanner(in).useDelimiter("\\A");
-                String result = scanner.hasNext() ? scanner.next() : "";
-                webService.writeResult("/out/out.txt", result);
+                String buildMessage = scanner.hasNext() ? scanner.next() : "";
+                response.buildMessage = buildMessage;
+
+                proc = Runtime.getRuntime().exec("java -cp /classfiles Main");
+                success = proc.waitFor(500, TimeUnit.MILLISECONDS);
+                // Then retrieve the process output
+                in = proc.getInputStream();
+                err = proc.getErrorStream(); // Ignore error stream?
+
+                String runOutput = scanner.hasNext() ? scanner.next() : "";
+                response.output = runOutput;
                 res.header("Access-Control-Allow-Origin", "http://njanderson.me");
-                return result;
+
+                // Cleanup
+                File sourceFile = new File(sourceFileName);
+                sourceFile.delete(); // Consider cleanup job that parses file names and uses the timestamps
+
+                String ret = gson.toJson(response);
+                res.body(ret);
+                return ret;
             } catch (Exception e) {
                 return "Failed out.";
             }
-
         });
 
         get("/hello", (req, res) -> "Hello World!"
         );
     }
-
-    private void writeResult(String resultPath, String result) {
-        try (Writer writer = new BufferedWriter(new OutputStreamWriter(
-                new FileOutputStream(resultPath), "utf-8"))) {
-            writer.write(result);
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
 }
