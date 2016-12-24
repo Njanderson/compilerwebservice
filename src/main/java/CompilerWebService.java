@@ -48,7 +48,7 @@ public class CompilerWebService {
                 String buildMessage = scanner.hasNext() ? scanner.next() : "";
                 response.buildMessage = buildMessage;
 
-                proc = Runtime.getRuntime().exec("java -cp /classfiles Main");
+                proc = Runtime.getRuntime().exec("java -cp /classfiles/" + suffix + " Main");
                 success = proc.waitFor(2000, TimeUnit.MILLISECONDS);
                 // Then retrieve the process output
                 in = proc.getInputStream();
