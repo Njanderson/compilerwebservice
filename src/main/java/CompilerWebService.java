@@ -6,7 +6,8 @@ import java.io.*;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
-import static spark.Spark.*;
+import static spark.Spark.get;
+import static spark.Spark.post;
 
 /**
  * This runs on port 4567.
@@ -29,13 +30,14 @@ public class CompilerWebService {
             try {
                 CompileJobRequest request = gson.fromJson(reqJson.body(), CompileJobRequest.class);
                 CompileJobResponse response = new CompileJobResponse();
-                String sourceFileName = "/raw/compile-source" + reqJson.ip() + System.currentTimeMillis() + ".slacc";
+                String suffix = reqJson.ip() + System.currentTimeMillis();
+                String sourceFileName = "/raw/compile-source" + suffix + ".slacc";
                 try (Writer writer = new BufferedWriter(new OutputStreamWriter(
                         new FileOutputStream(sourceFileName), "utf-8"))) {
                     writer.write(request.code);
                 }
                 Process proc = Runtime.getRuntime().exec("scala -cp /code/src/main/resources/cafebabe.jar " +
-                        "/code/src/main/resources/slacc-compiler.jar -d /classfiles " + sourceFileName);
+                        "/code/src/main/resources/slacc-compiler.jar -d /classfiles/" + suffix + " " + sourceFileName);
                 boolean success = proc.waitFor(500, TimeUnit.MILLISECONDS);
                 InputStream in;
                 InputStream err;
@@ -60,6 +62,11 @@ public class CompilerWebService {
                 // Cleanup
                 File sourceFile = new File(sourceFileName);
                 sourceFile.delete(); // Consider cleanup job that parses file names and uses the timestamps
+                File outDir = new File("/classfiles/" + suffix);
+                File[] contents = outDir.listFiles();
+                for (File f : contents) {
+                    f.delete();
+                }
 
                 String ret = gson.toJson(response);
                 res.body(ret);
@@ -72,4 +79,5 @@ public class CompilerWebService {
         get("/hello", (req, res) -> "Hello World!"
         );
     }
+
 }
