@@ -42,17 +42,17 @@ public class CompilerWebService {
                 in = proc.getInputStream();
                 err = proc.getErrorStream(); // Ignore error stream?
 
-                Scanner scanner = new Scanner(in).useDelimiter("\\A");
+                Scanner scanner = new Scanner(err).useDelimiter("\\A");
                 String buildMessage = scanner.hasNext() ? scanner.next() : "";
                 response.buildMessage = buildMessage;
 
                 proc = Runtime.getRuntime().exec("java -cp /classfiles Main");
-                success = proc.waitFor(500, TimeUnit.MILLISECONDS);
+                success = proc.waitFor(2000, TimeUnit.MILLISECONDS);
                 // Then retrieve the process output
                 in = proc.getInputStream();
                 err = proc.getErrorStream(); // Ignore error stream?
 
-                scanner = new Scanner(in).useDelimiter("\\A");
+                scanner = new Scanner(success ? in : err).useDelimiter("\\A");
                 String runOutput = scanner.hasNext() ? scanner.next() : "";
                 response.output = runOutput;
                 res.header("Access-Control-Allow-Origin", "http://njanderson.me");
